@@ -65,6 +65,18 @@ The Econet slot is clocked off the 'raw' Phi2 CPU clock, rather than the 1MHz cl
 
 * Timers will count inconsistently - at 2MHz during RAM and ROM accesses, but 1MHz during most I/O accesses.
 
+#### Modifying timing-critical code
+
+From the perspective of the 2MHz clock, access to devices on the 1MHz bus causes the processor to 'lose' two cycles - this is illustrated on Page 443 of the [BBC Microcomputer Advanced User Guide](https://stardot.org.uk/mirrors/www.bbcdocs.com/filebase/essentials/BBC%20Microcomputer%20Advanced%20User%20Guide.pdf). Conveniently, this is the same number of cycles as the `NOP` instruction, so adding either one or two `NOP`s (depending on the instruction) for each time-critical access should be enough to keep timing consistent with a 1MHz VIA.
+
+For absolute addressing, the following rule of thumb applies:
+
+* 4-cycle instructions (`LDA`, `ADC`, `AND`, `ORA` etc.) have 1 memory access, and thus will lose 2 cycles and require one `NOP`.
+
+* 6-cycle instructions (`ASL`, `LSR`, `ROL`, `ROR`, `INC`, `DEC`) have two memory accesses, and thus will lose 4 cycles and require two `NOP`s.
+
+In general, putting the `NOP`(s) before the instruction in question should provide the closest approximation to the 1MHz timing, but that may vary based on
+
 ## Econet Slot Information
 
 If you want to build your own hardware to fit the Master's Econet slot, this information might be of use:
